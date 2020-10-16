@@ -1,17 +1,16 @@
 /*
-LogAnalyzer kogub  koodibaasist kokku logilaused ( .Info(), .Debug() või
+LogDoc kogub  koodibaasist kokku logilaused ( .Info(), .Debug() või
 .Error() sisaldavad avaldislaused) ja esitab need inimloetava koondina
 (väljundina konsoolile). Testifaile ei analüüsita.
 
 Kasutamine:
 
-go run . [-dir <kausta nimi>] [-level <logitase>]
+go run . -dir <kausta nimi> [-level <logitase>]
 
 -dir on kaust, millest ja mille alamkaustadest logilauseid kogutakse.
 
--logitase väärtuseks anda Info, Debug või Error. Vaikeväärtus on Info.
-
-Väljundi näited on failides LogInfo.txt, LogDebug.txt ja LogError.txt.
+-logitase väärtuseks anda Info, Debug või Error. Vaikimisi haaratakse
+väljundisse kõik logitasemed.
 
 */
 package main
@@ -23,11 +22,9 @@ import (
 	"go/parser"
 	"go/printer"
 	"go/token"
-	"time"
-
-	// "log"
 	"os"
 	"path/filepath"
+	"time"
 )
 
 var (
@@ -40,14 +37,18 @@ var (
 func main() {
 
 	rootFolder := flag.String("dir", "", "Koodikaust")
-	logLevelPtr := flag.String("level", "Info", "Logitase (Info, Debug, Error")
+	logLevelPtr := flag.String("level", "", "Logitase (Info, Debug, Error")
 
 	flag.Parse()
+	if *rootFolder == "" {
+		fmt.Println("Anna koodikaust: -dir <kausta nimi>")
+		os.Exit(1)
+	}
 	logLevel = *logLevelPtr
 
 	fmt.Printf("\nLOGILAUSETE KOOND\n\nKaust: %s\nLogitase: %s\n",
 		*rootFolder, *logLevelPtr)
-	fmt.Printf("%v\n\n", time.Now().Format("2006.01.02 15:04:05"))	
+	fmt.Printf("%v\n\n", time.Now().Format("2006.01.02 15:04:05"))
 
 	// Statistika kogujad.
 	// Töödeldud faile
@@ -101,7 +102,7 @@ func walkFile(fname string) {
 	var (
 		// Väljasta faili nimi alles esimese huvitava tipu leidmisel;
 		// sellega tagad, et ei väljasta ebahuvitavate failide nimesid.
-		fnamePrinted bool
+		// fnamePrinted bool
 		// treeStack on AST puu läbimise pinu.
 		treeStack []ast.Node
 	)
@@ -128,12 +129,13 @@ func walkFile(fname string) {
 		id, isID := n.(*ast.Ident)
 		if isID {
 			// Kas id on "logLevel"?
-			if id.Name == logLevel {
+			if (logLevel == "" && (id.Name == "Info" || id.Name == "Error" || id.Name == "Debug")) ||
+				(logLevel == "" && id.Name == logLevel) {
 				// Väljasta faili nimi (kui seda ei ole veel tehtud)
-				if !fnamePrinted {
-					fmt.Printf("\n%s\n", fname)
-					fnamePrinted = true
-				}
+				// if !fnamePrinted {
+				// 	fmt.Printf("\n%s\n", fname)
+				// 	fnamePrinted = true
+				// }
 
 				// Otsi pinust viimane avaldislause
 				// si (stackIndex) on pinu järgmisena vaadeldava elemendi
@@ -174,13 +176,17 @@ func walkFile(fname string) {
 					fn = ""
 				}
 
-				// Väljasta logilause kujul: reanr (f-ni nimi): logilause.
+				// Väljasta logilause kujul:
+				// failinimi reanr (f-ni nimi)
+				// logilause
 				if esp != -1 {
+					fmt.Printf("\n%s ", fname)
 					fmt.Printf(
-						"\n%d: %v\n\t",
+						"%d: %v\n",
 						fset.Position(treeStack[esp].Pos()).Line,
 						fn,
 					)
+					// Fprint "pretty-prints" an AST node to output.
 					printer.Fprint(os.Stdout, fset, treeStack[esp])
 					fmt.Printf("\n")
 
