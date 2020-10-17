@@ -21,5 +21,6 @@ func main() {
 	l.Error().WithError(e).Log(ctx, "Proov")
 	l.Info().WithString("sõne", "arv1", 10).Log(ctx, "Proov")
 	l.Info().WithJSON("JSON-väärtus", "a").Log(ctx, "Proov")
+	l.Info().WithJSON("JSON-väärtus", "c").Log(ctx, "Proov 2")
 
 }

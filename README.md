@@ -1,36 +1,40 @@
 # LogDoc
 
-LogDoc on koodianalüüsi- ja dokumenteerimisvahend, mis koostab koodibaasis tehtavatest logimistest ülevaate ja abistab inimest logimiskohtadele inimloetavate selgituste lisamisel. 
+LogDoc on koodianalüüsi ja -dokumenteerimisvahend, mis koostab koodibaasis tehtavatest logimistest ülevaate ja abistab inimest logilausete kommenteerimisel.
 
-LogDoc koosneb rakendusest ja failist.
+Logilause on koodibaasi lause, mis koostab ja kirjutab logikirje. Logilaused on äratuntavad eelkõige logimisteegi kasutamise järgi. Logilaused on laiali üle kogu koodibaasi. Logimise katvuse hindamiseks, aga samuti logi mõistmiseks on vaja ülevaadet, mida logitakse ja arusaamist, mida logikirjed tähendavad. LogDoc aitab neid vajadusi rahuldada, sellega, et koostavb täieliku, kogu koodibaasi hõlmava nimekirja logimistest ja aitab inimesel siduda logimislausetega inimloetavaid kommentaare. 
 
-Rakendus käib läbi kogu koodibaasi ja tuvastab kohad, kus
-logitakse (logimislaused). Tuvastamine põhineb asjaolul, et teada on
-koodibaasis kasutatav logimisteek.
-Tuvastatud logimislausete kohta peab rakendus arvestust eraldi failis
-(edaspidi - LogDoc fail).
-Inimene lisab failis logimislausetele inimloetavad seletused.
+LogDoc on mõeldud juhtudeks, kus arendaja oma koodi ei dokumenteeri s.t koodibaas ei sisalda kommentaare.
 
-Koodi muutudes lastakse LogDoc uuesti koodibaasi analüüsima.
-Iga koodis tuvastatud logimislause kohta rakendus:
-- kontrollib, kas logimislause juba on LogDoc failis
-- kui ei ole, siis lisab ja markeerib inimesele selgituse lisamiseks
-- kui ei ole, aga on sarnane lause, siis rakendus markeerib sarnasuse
-ja lisab logimislause sarnase lause kõrvale.
+LogDoc koosneb rakendusest ja logilausete failist.
 
-Inimene avab faili ja kasutades taustateadmist ning vajadusel
-uurides täiendavalt koodi, lisab igale logimislausele inimloetava
-kommentaari, samuti lahendab sarnasuskonfliktid.
+Logilausete fail on järgmise struktuuriga. Märkus: Süntaks on kirjeldatud EBNF abil, vt https://golang.org/ref/spec#Notation. 
+ 
+`logilausete_fail = { logilause_kirjeldus } .`
+`logilause_kirjeldus = logilause { viit } kommentaar .`
+`kommentaar = { kommentaaririda } tühirida .`
+`viit = "(" failitee "," reanumber "," funktsooninimi ")" .`
 
-LogDoc kogub koodibaasist kokku logilaused ( `.Info()`, `.Debug()` või `.Error()` sisaldavad avaldislaused) ja esitab need inimloetava koondina (väljundina konsoolile). Testifaile ei analüüsita.
+`logilause` on koodibaasist kopeeritud logi kirjutav lause (tehniliselt: Go AST "pretty-print" kujul). Logilause on eraldi real.
+
+`viit` näitab koodilause asukohta koodibaasis. Samakujuline logilause võib koodibaasis esineda mitmes kohas. Logilause kirjeldusse kogutakse viited kõigile esinemistele. Iga viit on eraldi real.
+
+`kommentaar` koosneb 0 või enamast tekstireast, mille lõpetab tühi rida.
+
+Logilausete faili genereerib LogDoc rakendus. Fail on lihtsa struktuuriga tekstifail. Inimene saab faili lugeda ja sinna kommentaare lisada. 
+
+LogDoc rakendus korjab koodibaasist kokku logilaused ja salvestab logilausete faili. Logilausele lisatakse viidad kohtadele, kus lause koodis esineb. Rakendust käivitatakse perioodiliselt, hõivamaks arenduses toimunud muutusi. Kui logilause auskoht koodis on muutunud, siis LogDoc uuendab viita(sid).
+
+Inimene saab logilausete kirjeldustele failis lisada kommentaare tavalise tekstiredaktoriga.
+
+LogDoc analüüsib Go koodi. Testifaile ei analüüsita.
 
 Kasutamine:
 
 ````
-go run . -dir <kausta nimi> [-level <logitase>]
+go run . -dir <koodibaasi kaust> -logdocfile <logilausete fail>
 ````
 
 `-dir` on kaust, millest ja mille alamkaustadest logilauseid kogutakse.
 
-`-logitase` väärtuseks anda `Info`, `Debug` või `Error`. Vaikimisi haaratakse
-väljundisse kõik logitasemed. Väärtused on tõstutundlikud.
+`-logdocfile` on logilausete faili nimi (failitee).
