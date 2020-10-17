@@ -10,10 +10,12 @@ LogDoc koosneb rakendusest ja logilausete failist.
 
 Logilausete fail on järgmise struktuuriga. Märkus: Süntaks on kirjeldatud EBNF abil, vt https://golang.org/ref/spec#Notation. 
  
-`logilausete_fail = { logilause_kirjeldus } .`
-`logilause_kirjeldus = logilause { viit } kommentaar .`
-`kommentaar = { kommentaaririda } tühirida .`
-`viit = "(" failitee "," reanumber "," funktsooninimi ")" .`
+````
+logilausete_fail = { logilause_kirjeldus } .
+logilause_kirjeldus = logilause { viit } kommentaar .
+kommentaar = { kommentaaririda } tühirida .
+viit = "(" failitee "," reanumber "," funktsooninimi ")" .
+````
 
 `logilause` on koodibaasist kopeeritud logi kirjutav lause (tehniliselt: Go AST "pretty-print" kujul). Logilause on eraldi real.
 
