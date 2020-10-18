@@ -87,7 +87,7 @@ func readFlags() {
 	statLogDocFile := statCmd.String("logdocfile", "", "Logilausekirjelduste fail")
 
 	if len(os.Args) < 2 {
-		fmt.Println("Anna alamkäsk 'extract' või 'clear'")
+		fmt.Println("Anna alamkäsk 'create', 'update', 'stat' või 'clear'")
 		os.Exit(1)
 	}
 
@@ -149,6 +149,7 @@ func walk() {
 			if !info.IsDir() && // Ei ole kaust
 				filepath.Ext(path) == ".go" && // on go fail
 				path[len(path)-8:] != "_test.go" { // ei ole testifail
+				fmt.Printf("%s\n", path)
 				walkFile(path)
 				nof = nof + 1
 			}
@@ -156,7 +157,7 @@ func walk() {
 		},
 	)
 	if err != nil {
-		fmt.Printf("Viga kausta läbijalutamisel: ")
+		fmt.Printf("Viga kausta läbijalutamisel: %v\n", err)
 		os.Exit(1)
 	}
 }
@@ -276,25 +277,19 @@ func readLogStmntDescs(fname string, readLocs bool) {
 
 // walkFile otsib failist fname logilaused.
 func walkFile(fname string) {
-
 	var buf bytes.Buffer // Logilause AST "pretty-print" kuju koostamiseks.
-
 	// Parsi fail fname AST puuks.
 	fset := token.NewFileSet()
-	// Tagastab ast.File tipu.
-	// https://golang.org/pkg/go/parser/#ParseFile
+	// Tagastab ast.File tipu. https://golang.org/pkg/go/parser/#ParseFile
 	node, err := parser.ParseFile(fset, fname, nil, parser.AllErrors)
 	if err != nil {
 		fmt.Printf("Viga faili parsimisel: %v", err)
 		os.Exit(1)
 	}
-
 	// treeStack on AST puu läbimise pinu.
 	var treeStack []ast.Node
-
 	// Jaluta kood läbi
 	ast.Inspect(node, func(n ast.Node) bool {
-
 		// Inspekteerimisf-n kutsutakse argumendiga nil välja
 		// pärast kõigi alamtippude läbimist.
 		if n == nil {
@@ -305,10 +300,8 @@ func walkFile(fname string) {
 			}
 			return true
 		}
-
 		// Lisa tipp pinussse
 		treeStack = append(treeStack, n)
-
 		// Töötlus vastavalt tipu tüübile
 		// Kas tipp on identifikaator?
 		id, isID := n.(*ast.Ident)
@@ -378,13 +371,10 @@ func walkFile(fname string) {
 					}
 					noLogStmts = noLogStmts + 1
 				}
-
 			}
 		}
-
 		return true
 	})
-
 }
 
 // clearLogDocFile eemaldab LogDoc failist logilaused, mille seosed koodibaasiga on kadunud.

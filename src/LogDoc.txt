@@ -1,0 +1,21 @@
+l.Error().WithError(e).Log(ctx, "Proov")
+(../testapp/main.go, main, 21)
+
+l.Info().WithString("sõne", "arv1", 10).Log(ctx, "Proov")
+(../testapp/main.go, main, 22)
+
+l.Info().WithJSON("JSON-väärtus", "a").Log(ctx, "Proov")
+(../testapp/main.go, main, 23)
+
+l.Info().WithJSON("JSON-väärtus", "c").Log(ctx, "Proov 2")
+(../testapp/main.go, main, 24)
+
+m.withParam("error", err.Error())
+(../testapp/log/log.go, WithError, 247)
+
+l.Debug().Log(ctx, "Proov")
+(../testapp/main.go, main, 18)
+
+l.Info().Log(ctx, "Proov")
+(../testapp/main.go, main, 19)
+
