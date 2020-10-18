@@ -2,9 +2,9 @@
 
 LogDoc on koodianalüüsi ja -dokumenteerimisvahend, mis koostab koodibaasis tehtavatest logimistest ülevaate ja abistab inimest logilausete kommenteerimisel.
 
-Logilause on koodibaasi lause, mis koostab ja kirjutab logikirje. Logilaused on äratuntavad eelkõige logimisteegi kasutamise järgi. Logilaused on laiali üle kogu koodibaasi. Logimise katvuse hindamiseks, aga samuti logi mõistmiseks on vaja ülevaadet, mida logitakse ja arusaamist, mida logikirjed tähendavad. LogDoc aitab neid vajadusi rahuldada, sellega, et koostavb täieliku, kogu koodibaasi hõlmava nimekirja logimistest ja aitab inimesel siduda logimislausetega inimloetavaid kommentaare. 
+Logilause on koodibaasi lause, mis koostab ja kirjutab logikirje. Logilaused on äratuntavad eelkõige logimisteegi kasutamise järgi. Logilaused on laiali üle kogu koodibaasi. Logimise katvuse hindamiseks, aga samuti logi mõistmiseks on vaja ülevaadet, mida logitakse ja arusaamist, mida logikirjed tähendavad. LogDoc aitab neid vajadusi rahuldada - sellega, et koostab täieliku, kogu koodibaasi hõlmava nimekirja logimistest ja aitab inimesel siduda logimislausetega inimloetavaid kommentaare. 
 
-LogDoc on mõeldud juhtudeks, kus arendaja oma koodi ei dokumenteeri s.t koodibaas ei sisalda kommentaare.
+LogDoc on mõeldud juhtudeks, kus arendaja koodi ei dokumenteeri s.t koodibaas ei sisalda kommentaare.
 
 LogDoc koosneb rakendusest ja logilausete failist.
 
@@ -23,17 +23,15 @@ viit = "(" failitee "," reanumber "," funktsooninimi ")" .
 kommentaarid = { kommentaaririda } .
 ````
 
-`logilause`, `viit` ja `kommentaar` on eraldi real. `----` on eraldaja. Tühje ridu ei arvestata. 
-
-`logilause` on koodibaasist kopeeritud logi kirjutav lause (tehniliselt: Go AST "pretty-print" kujul). Logilause on ühel või mitmel real.
+`logilause` on koodibaasist kopeeritud logi kirjutav lause (tehniliselt: Go AST "pretty-print" kujul). Logilause on ühel või mitmel real. `----` on eraldaja.
 
 `viit` näitab koodilause asukohta koodibaasis. Samakujuline logilause võib koodibaasis esineda mitmes kohas. Logilause kirjeldusse kogutakse viited kõigile esinemistele. Iga viit on eraldi real.
 
 `kommentaarid` koosneb ühest või enamast tekstireast.
 
-Logilausete faili genereerib LogDoc rakendus. Fail on lihtsa struktuuriga tekstifail. Inimene saab faili lugeda ja sinna kommentaare lisada. 
+Tühje ridu ei arvestata. 
 
-LogDoc rakendus korjab koodibaasist kokku logilaused ja salvestab logilausete faili. Logilausele lisatakse viidad kohtadele, kus lause koodis esineb. Rakendust käivitatakse perioodiliselt, hõivamaks arenduses toimunud muutusi. Kui logilause auskoht koodis on muutunud, siis LogDoc uuendab viita(sid).
+Logilausete faili genereerib LogDoc rakendus. Rakendus korjab koodibaasist kokku logilaused ja salvestab logilausete faili. Logilausele lisatakse viidad kohtadele, kus lause koodis esineb. Rakendust käivitatakse perioodiliselt, hõivamaks arenduses toimunud muutusi. Kui logilause asukoht koodis on muutunud, siis LogDoc uuendab viita(sid).
 
 Inimene saab logilausete kirjeldustele failis lisada kommentaare tavalise tekstiredaktoriga.
 
@@ -41,7 +39,7 @@ LogDoc analüüsib Go koodi. Testifaile ei analüüsita.
 
 Kasutamine:
 
-LogDoc käivitatakse käsurealt. LogDoc pakub 3 alamkäsku:
+LogDoc käivitatakse käsurealt. LogDoc pakub 4 alamkäsku:
 
 - `create` - kogub koodibaasist logilaused ja moodustab LogDoc-faili
 - `update` - uuendab LogDoc-faili koodibaasi muutustega
