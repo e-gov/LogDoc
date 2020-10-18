@@ -32,46 +32,109 @@ type logStmntDesc struct { // LogStmntDesc on logilause kirjeldus.
 var logStmntDescs map[logStmnt]logStmntDesc
 
 func main() {
-
 	readFlags()
-
-	// Loe logilausekirjeldused failist mäppi.
-	readLogStmntDescs(logDocFileName)
-
-	// Väljasta kontrolliks sisseloetud logilausekirjeldused.
-	writeLogStmntDescs("./Abi.txt")
-
-	// Läbi koodibaas, otsides logilauseid.
-	walk()
-
-	// Salvesta logilausete kirjelduste mäpp faili.
-	writeLogStmntDescs(logDocFileName)
-
-	// Väljasta statistika
-	fmt.Printf("Go-faile (v.a testid): %v\n", nof)
-	fmt.Printf("Logilauseid: %v\n", noLogStmts)
-
+	switch os.Args[1] {
+	case "create":
+		// Läbi koodibaas, otsides logilauseid.
+		// Lähtesta mäpp.
+		logStmntDescs = make(map[logStmnt]logStmntDesc)
+		walk()
+		// Salvesta logilausete kirjelduste mäpp faili.
+		writeLogStmntDescs(logDocFileName)
+		// Väljasta statistika
+		fmt.Printf("Go-faile (v.a testid): %v\n", nof)
+		fmt.Printf("Logilauseid: %v\n", noLogStmts)
+	case "update":
+		// Loe logilausekirjeldused (ilma viideteta koodibaasile) failist mäppi.
+		readLogStmntDescs(logDocFileName, false)
+		// Salvesta logilausete kirjelduste mäpp kontrolliks faili.
+		writeLogStmntDescs("./Abi.txt")
+		// Läbi koodibaas, otsides logilauseid.
+		walk()
+		// Salvesta logilausete kirjelduste mäpp faili.
+		writeLogStmntDescs(logDocFileName)
+		// Väljasta statistika
+		fmt.Printf("Töödeldud Go-faile (v.a testid): %v\n", nof)
+		fmt.Printf("Koodibaasis leitud logilauseid: %v\n", noLogStmts)
+		fmt.Printf("LogDoc-failis logilauseid: %v\n", len(logStmntDescs))
+	case "clear":
+		// Loe logilausekirjeldused, sh viited koodibaasile, failist mäppi.
+		readLogStmntDescs(logDocFileName, true)
+		clearLogDocFile()
+	case "stat":
+		// Loe logilausekirjeldused, sh viited koodibaasile, failist mäppi.
+		readLogStmntDescs(logDocFileName, true)
+		// Salvesta logilausete kirjelduste mäpp kontrolliks faili.
+		writeLogStmntDescs("./Abi.txt")
+		statistics()
+	}
 }
 
-// readFlags loeb ja kontrollib käsureaohjeväärtused.
+// readFlags loeb ja kontrollib käsurea ohjeväärtused.
 func readFlags() {
-	rootFolderPtr := flag.String("dir", "", "Koodikaust")
-	logDocFileNamePtr := flag.String("logdocfile", "", "Logilausekirjelduste fail")
+	createCmd := flag.NewFlagSet("create", flag.ExitOnError)
+	createCodebase := createCmd.String("dir", "", "Koodikaust")
+	createLogDocFile := createCmd.String("logdocfile", "", "Logilausekirjelduste fail")
 
-	flag.Parse()
-	if *rootFolderPtr == "" {
-		fmt.Println("Anna koodikaust: -dir <kausta nimi>")
+	updateCmd := flag.NewFlagSet("update", flag.ExitOnError)
+	updateCodebase := updateCmd.String("dir", "", "Koodikaust")
+	updateLogDocFile := updateCmd.String("logdocfile", "", "Logilausekirjelduste fail")
+
+	clearCmd := flag.NewFlagSet("clear", flag.ExitOnError)
+	clearLogDocFile := clearCmd.String("logdocfile", "", "Logilausekirjelduste fail")
+
+	statCmd := flag.NewFlagSet("stat", flag.ExitOnError)
+	statLogDocFile := statCmd.String("logdocfile", "", "Logilausekirjelduste fail")
+
+	if len(os.Args) < 2 {
+		fmt.Println("Anna alamkäsk 'extract' või 'clear'")
 		os.Exit(1)
 	}
-	rootFolder = *rootFolderPtr
-	if *logDocFileNamePtr == "" {
-		fmt.Println("Anna LogDoc faili asukoht: -logdocfile <failitee>")
-		os.Exit(1)
-	}
-	logDocFileName = *logDocFileNamePtr
 
-	fmt.Printf("LogDoc\nKaust: %s\nLogDoc fail: %s\n",
-		rootFolder, logDocFileName)
+	switch os.Args[1] {
+	case "create":
+		createCmd.Parse(os.Args[2:])
+		if *createCodebase == "" {
+			fmt.Println("Anna koodikaust: -dir <kausta nimi>")
+			os.Exit(1)
+		}
+		if *createLogDocFile == "" {
+			fmt.Println("Anna LogDoc faili asukoht: -logdocfile <failitee>")
+			os.Exit(1)
+		}
+		rootFolder = *createCodebase
+		logDocFileName = *createLogDocFile
+		fmt.Printf("Kaust: %s\nLogDoc fail: %s\n", rootFolder, logDocFileName)
+	case "update":
+		updateCmd.Parse(os.Args[2:])
+		if *updateCodebase == "" {
+			fmt.Println("Anna koodikaust: -dir <kausta nimi>")
+			os.Exit(1)
+		}
+		if *updateLogDocFile == "" {
+			fmt.Println("Anna LogDoc faili asukoht: -logdocfile <failitee>")
+			os.Exit(1)
+		}
+		rootFolder = *updateCodebase
+		logDocFileName = *updateLogDocFile
+		fmt.Printf("Kaust: %s\nLogDoc fail: %s\n", rootFolder, logDocFileName)
+	case "clear":
+		clearCmd.Parse(os.Args[2:])
+		if *clearLogDocFile == "" {
+			fmt.Println("Anna LogDoc faili asukoht: -logdocfile <failitee>")
+			os.Exit(1)
+		}
+		logDocFileName = *clearLogDocFile
+		fmt.Printf("LogDoc fail: %s\n", logDocFileName)
+	case "stat":
+		statCmd.Parse(os.Args[2:])
+		if *statLogDocFile == "" {
+			fmt.Println("Anna LogDoc faili asukoht: -logdocfile <failitee>")
+			os.Exit(1)
+		}
+		logDocFileName = *statLogDocFile
+		fmt.Printf("LogDoc fail: %s\n", logDocFileName)
+	}
 }
 
 // walk läbib koodibaasi, otsides logilauseid.
@@ -83,13 +146,9 @@ func walk() {
 				return err
 			}
 			// Töötle fail
-			// fmt.Println(path, info.Size())
-			// Ei ole kaust
-			if !info.IsDir() &&
-				// on go fail
-				filepath.Ext(path) == ".go" &&
-				// ei ole testifail
-				path[len(path)-8:] != "_test.go" {
+			if !info.IsDir() && // Ei ole kaust
+				filepath.Ext(path) == ".go" && // on go fail
+				path[len(path)-8:] != "_test.go" { // ei ole testifail
 				walkFile(path)
 				nof = nof + 1
 			}
@@ -122,8 +181,7 @@ func writeLogStmntDescs(fname string) {
 }
 
 // readLogStmntDescs loeb logilausekirjeldused failist mäppi.
-func readLogStmntDescs(fname string) {
-
+func readLogStmntDescs(fname string, readLocs bool) {
 	const (
 		BOF   = iota // Faili algus.
 		STMNT        // Logilause.
@@ -131,7 +189,6 @@ func readLogStmntDescs(fname string) {
 		CMNT         // Selgitus.
 		EMPTY        // Tühi rida.
 	)
-
 	var cLS logStmnt // Failist parajasti sisseloetav logilause
 
 	// Lähtesta mäpp.
@@ -139,50 +196,80 @@ func readLogStmntDescs(fname string) {
 
 	dat, err := ioutil.ReadFile(fname)
 	if err != nil {
-		fmt.Println("Viga faili lugemisel. Faili ei ole?")
+		fmt.Println("Viga LogDoc-faili lugemisel. Faili ei ole?")
 		return
 	}
 	fcontents := string(dat)
 	lines := strings.Split(fcontents, "\n")
-	pLT := BOF // Eelmise rea tüüp.
+	prev := BOF // Eelmise rea tüüp.
 	for _, line := range lines {
-		switch pLT {
+		// fmt.Println(line)
+		switch prev {
 		case BOF: // Faili algus
-			cLS = logStmnt(line)
-			pLT = STMNT
-			break
-		case STMNT:
-			// Asukohti sisse ei ole; need kirjutame alati üle.
-			pLT = LOCS
-			break
-		case LOCS:
 			if line == "" {
-				pLT = EMPTY
+				break
+			}
+			cLS = logStmnt(line)
+			logStmntDescs[cLS] = logStmntDesc{[]string{}, []string{}}
+			// fmt.Printf("Lugesin logilause: %v\n", cLS)
+			prev = STMNT
+		case STMNT:
+			if line == "" {
+				prev = EMPTY
 				break
 			}
 			if line[0] == '(' {
-				// Asukohti sisse ei ole; need kirjutame alati üle.
+				// update puhul asukohti sisse ei loe; need kirjutame alati üle.
+				if readLocs {
+					h := logStmntDescs[cLS]
+					h.locations = append(h.locations, line)
+					logStmntDescs[cLS] = h
+					// fmt.Println("Lisatud: viit")
+				}
+				prev = LOCS
 				break
 			}
-			abi := logStmntDescs[cLS]
-			abi.comments = append(abi.comments, line)
-			logStmntDescs[cLS] = abi
-			pLT = CMNT
-			break
+			h := logStmntDescs[cLS]
+			h.comments = append(h.comments, line)
+			logStmntDescs[cLS] = h
+			// fmt.Println("Lisatud: kommentaar")
+			prev = CMNT
+		case LOCS:
+			if line == "" {
+				prev = EMPTY
+				break
+			}
+			if line[0] == '(' {
+				if readLocs {
+					h := logStmntDescs[cLS]
+					h.locations = append(h.locations, line)
+					logStmntDescs[cLS] = h
+					// fmt.Println("Lisatud: viit")
+				}
+				break
+			}
+			h := logStmntDescs[cLS]
+			h.comments = append(h.comments, line)
+			logStmntDescs[cLS] = h
+			// fmt.Println("Lisatud: kommentaar")
+			prev = CMNT
 		case CMNT:
 			if line == "" {
-				pLT = EMPTY
+				prev = EMPTY
 			} else {
-				abi := logStmntDescs[cLS]
-				abi.comments = append(abi.comments, line)
-				logStmntDescs[cLS] = abi
-				pLT = CMNT
+				h := logStmntDescs[cLS]
+				h.comments = append(h.comments, line)
+				logStmntDescs[cLS] = h
+				// fmt.Println("Lisatud: kommentaar")
+				prev = CMNT
 			}
-			break
 		case EMPTY:
-			cLS = logStmnt(line)
-			pLT = STMNT
-			break
+			if line != "" {
+				cLS = logStmnt(line)
+				logStmntDescs[cLS] = logStmntDesc{[]string{}, []string{}}
+				// fmt.Printf("Lugesin logilause: %v\n", cLS)
+				prev = STMNT
+			}
 		}
 	}
 }
@@ -274,15 +361,18 @@ func walkFile(fname string) {
 					printer.Fprint(&buf, fset, treeStack[esp])
 					k := logStmnt(buf.String())
 					// Valmista logilauseasukoht.
-					l := fmt.Sprintf("(%v, %v, %v)", fname, funcName, fset.Position(treeStack[esp].Pos()).Line)
+					loc := fmt.Sprintf("(%v, %v, %v)", fname, funcName, fset.Position(treeStack[esp].Pos()).Line)
 
 					// Kas on juba mäpis?
 					_, ok := logStmntDescs[k]
 					if ok {
-						// Kirjuta asukohad üle. Õigemini, asukohti sisse ei loegi.
+						// Lisa asukoht.
+						h := logStmntDescs[k]
+						h.locations = append(h.locations, loc)
+						logStmntDescs[k] = h
 					} else {
 						logStmntDescs[k] = logStmntDesc{
-							locations: []string{l},
+							locations: []string{loc},
 							comments:  []string{},
 						}
 					}
@@ -297,18 +387,42 @@ func walkFile(fname string) {
 
 }
 
+// clearLogDocFile eemaldab LogDoc failist logilaused, mille seosed koodibaasiga on kadunud.
+func clearLogDocFile() {
+	nd := 0
+	for key, elem := range logStmntDescs {
+		if len(elem.locations) == 0 {
+			delete(logStmntDescs, key)
+			fmt.Printf("Eemaldasin logilause %v.\n", key)
+			nd++
+		}
+	}
+	writeLogStmntDescs(logDocFileName)
+	fmt.Printf("Eemaldasin %v logilauset.\n", nd)
+}
+
+// statistics väljastab statistikat LogDoc-faili kohta.
+func statistics() {
+	fmt.Printf("Logilauseid: %v\n", len(logStmntDescs))
+	nd := 0
+	for _, elem := range logStmntDescs {
+		if len(elem.locations) == 0 {
+			nd++
+		}
+	}
+	fmt.Printf("Koodibaasiga seose kaotanud logilauseid: %v\n", nd)
+}
+
 // Märkmed
 // https://yourbasic.org/golang/list-files-in-directory/
 // Kausta läbijalutamine
-
 // "github.com/davecgh/go-spew/spew"
 // AST ilus, sügav väljastus
-
 // https://golang.org/pkg/go/ast/#Inspect
 // ast.Inspect, koos näitega
-
 // https://yourbasic.org/golang/implement-stack/
 // Pinu teostus
-
 // AST printer
 // https://pkg.go.dev/go/printer#example-Fprint
+// https://gobyexample.com/command-line-subcommands
+// Go alamkäsud

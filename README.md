@@ -12,10 +12,14 @@ Logilausete fail on järgmise struktuuriga. Märkus: Süntaks on kirjeldatud EBN
  
 ````
 logilausete_fail = { logilause_kirjeldus } .
-logilause_kirjeldus = logilause { viit } kommentaar .
+logilause_kirjeldus = logilause [ viidad ] [ kommentaarid ] .
+viidad = { viit } .
+kommentaarid = { kommentaar } .
 kommentaar = { kommentaaririda } tühirida .
 viit = "(" failitee "," reanumber "," funktsooninimi ")" .
 ````
+
+`logilause`, `viit` ja `kommentaar` on eraldi real. Kahe `logilause_kirjeldus` vahel peab olema üks v enam tühja rida. 
 
 `logilause` on koodibaasist kopeeritud logi kirjutav lause (tehniliselt: Go AST "pretty-print" kujul). Logilause on eraldi real.
 
@@ -33,8 +37,25 @@ LogDoc analüüsib Go koodi. Testifaile ei analüüsita.
 
 Kasutamine:
 
+LogDoc käivitatakse käsurealt. LogDoc pakub 3 alamkäsku:
+
+- `create` - kogub koodibaasist logilaused ja moodustab LogDoc-faili
+- `update` - uuendab LogDoc-faili koodibaasi muutustega
+- `clear` - eemaldab LogDoc-failist logilaused, mis on kaotanud seose koodibaasiga  
+- `stat` - väljastab statistikat logilausete kohta.
+
+Koodibaasi ja LogDoc-faili asukoht antakse lippudega:
+
 ````
-go run . -dir <koodibaasi kaust> -logdocfile <logilausete fail>
+logdoc extract -dir <koodibaasi kaust> -logdocfile <logilausete fail>
+````
+
+````
+logdoc clear -logdocfile <logilausete fail>
+````
+
+````
+logdoc stat -logdocfile <logilausete fail>
 ````
 
 `-dir` on kaust, millest ja mille alamkaustadest logilauseid kogutakse.
