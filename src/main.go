@@ -169,7 +169,9 @@ func writeLogStmntDescs(fname string) {
 		fmt.Println("Viga faili avamisel")
 	}
 	for key, element := range logStmntDescs {
-		txtFile.Write([]byte(fmt.Sprintf("%v\n", key)))
+		txtFile.Write([]byte(fmt.Sprintf("----\n")))    // Väljasta eraldaja.
+		txtFile.Write([]byte(fmt.Sprintf("%v\n", key))) // Väljasta logilause.
+		txtFile.Write([]byte(fmt.Sprintf("----\n")))    // Väljasta eraldaja.
 		for _, l := range element.locations {
 			txtFile.Write([]byte(fmt.Sprintf("%v\n", l)))
 		}
@@ -184,13 +186,15 @@ func writeLogStmntDescs(fname string) {
 // readLogStmntDescs loeb logilausekirjeldused failist mäppi.
 func readLogStmntDescs(fname string, readLocs bool) {
 	const (
-		BOF   = iota // Faili algus.
-		STMNT        // Logilause.
-		LOCS         // Logilause asukohad.
-		CMNT         // Selgitus.
-		EMPTY        // Tühi rida.
+		BOF  = iota // Faili algus.
+		LOGB        // Logilause aluseraldaja ('----')
+		LOGS        // Logilause rida.
+		LOGE        // Logilause lõpueraldaja ('----')
+		LOCS        // Logilause asukohad.
+		CMNT        // Selgitus.
 	)
-	var cLS logStmnt // Failist parajasti sisseloetav logilause
+	var LSBuf string // Abimuutuja logilause kogumiseks.
+	var cLS logStmnt // Failist parajasti sisseloetav logilause.
 
 	// Lähtesta mäpp.
 	logStmntDescs = make(map[logStmnt]logStmntDesc)
@@ -203,23 +207,42 @@ func readLogStmntDescs(fname string, readLocs bool) {
 	fcontents := string(dat)
 	lines := strings.Split(fcontents, "\n")
 	prev := BOF // Eelmise rea tüüp.
-	for _, line := range lines {
-		// fmt.Println(line)
+	for lno, line := range lines {
+		// fmt.Println("Read: " + line)
 		switch prev {
 		case BOF: // Faili algus
-			if line == "" {
+			if line == "----" {
+				prev = LOGB
+			}
+		case LOGB: // Logilause alguseraldaja
+			if line == "----" {
+				fmt.Printf("Ebakorrektne LogDoc-file, rida: %v", lno+1)
+				os.Exit(1)
+			}
+			LSBuf = line
+			prev = LOGS
+		case LOGS: // Logilause rida
+			if line == "----" {
+				cLS = logStmnt(LSBuf)
+				logStmntDescs[cLS] = logStmntDesc{[]string{}, []string{}}
+				// fmt.Printf("Lugesin logilause rea: %v\n", cLS)
+				prev = LOGE
+			} else {
+				if LSBuf == "" {
+					LSBuf = line
+				} else {
+					LSBuf = LSBuf + "\n" + line
+				}
+			}
+		case LOGE: // Logilause lõpueraldaja
+			if line == "" { // Tühiridu ei loe kommentaaridena.
 				break
 			}
-			cLS = logStmnt(line)
-			logStmntDescs[cLS] = logStmntDesc{[]string{}, []string{}}
-			// fmt.Printf("Lugesin logilause: %v\n", cLS)
-			prev = STMNT
-		case STMNT:
-			if line == "" {
-				prev = EMPTY
+			if line == "----" { // Puuduvad nii viited kui kommentaarid.
+				prev = LOGB
 				break
 			}
-			if line[0] == '(' {
+			if line[0] == '(' { // Viit.
 				// update puhul asukohti sisse ei loe; need kirjutame alati üle.
 				if readLocs {
 					h := logStmntDescs[cLS]
@@ -230,6 +253,7 @@ func readLogStmntDescs(fname string, readLocs bool) {
 				prev = LOCS
 				break
 			}
+			// Jääb üle ainult kommentaar.
 			h := logStmntDescs[cLS]
 			h.comments = append(h.comments, line)
 			logStmntDescs[cLS] = h
@@ -237,7 +261,6 @@ func readLogStmntDescs(fname string, readLocs bool) {
 			prev = CMNT
 		case LOCS:
 			if line == "" {
-				prev = EMPTY
 				break
 			}
 			if line[0] == '(' {
@@ -249,27 +272,25 @@ func readLogStmntDescs(fname string, readLocs bool) {
 				}
 				break
 			}
+			if line == "----" {
+				prev = LOGB
+				break
+			}
 			h := logStmntDescs[cLS]
 			h.comments = append(h.comments, line)
 			logStmntDescs[cLS] = h
 			// fmt.Println("Lisatud: kommentaar")
 			prev = CMNT
 		case CMNT:
-			if line == "" {
-				prev = EMPTY
-			} else {
+			if line == "----" {
+				prev = LOGB
+				break
+			}
+			if line != "" {
 				h := logStmntDescs[cLS]
 				h.comments = append(h.comments, line)
 				logStmntDescs[cLS] = h
 				// fmt.Println("Lisatud: kommentaar")
-				prev = CMNT
-			}
-		case EMPTY:
-			if line != "" {
-				cLS = logStmnt(line)
-				logStmntDescs[cLS] = logStmntDesc{[]string{}, []string{}}
-				// fmt.Printf("Lugesin logilause: %v\n", cLS)
-				prev = STMNT
 			}
 		}
 	}

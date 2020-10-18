@@ -12,20 +12,24 @@ Logilausete fail on järgmise struktuuriga. Märkus: Süntaks on kirjeldatud EBN
  
 ````
 logilausete_fail = { logilause_kirjeldus } .
-logilause_kirjeldus = logilause [ viidad ] [ kommentaarid ] .
+logilause_kirjeldus =
+    "----"
+    logilause
+    "----"
+    [ viidad ]
+    [ kommentaarid ] .
 viidad = { viit } .
-kommentaarid = { kommentaar } .
-kommentaar = { kommentaaririda } tühirida .
 viit = "(" failitee "," reanumber "," funktsooninimi ")" .
+kommentaarid = { kommentaaririda } .
 ````
 
-`logilause`, `viit` ja `kommentaar` on eraldi real. Kahe `logilause_kirjeldus` vahel peab olema üks v enam tühja rida. 
+`logilause`, `viit` ja `kommentaar` on eraldi real. `----` on eraldaja. Tühje ridu ei arvestata. 
 
-`logilause` on koodibaasist kopeeritud logi kirjutav lause (tehniliselt: Go AST "pretty-print" kujul). Logilause on eraldi real.
+`logilause` on koodibaasist kopeeritud logi kirjutav lause (tehniliselt: Go AST "pretty-print" kujul). Logilause on ühel või mitmel real.
 
 `viit` näitab koodilause asukohta koodibaasis. Samakujuline logilause võib koodibaasis esineda mitmes kohas. Logilause kirjeldusse kogutakse viited kõigile esinemistele. Iga viit on eraldi real.
 
-`kommentaarid` koosneb ühest või enamast tekstireast, mille lõpetab tühi rida.
+`kommentaarid` koosneb ühest või enamast tekstireast.
 
 Logilausete faili genereerib LogDoc rakendus. Fail on lihtsa struktuuriga tekstifail. Inimene saab faili lugeda ja sinna kommentaare lisada. 
 

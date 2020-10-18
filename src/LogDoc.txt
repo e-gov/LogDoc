@@ -1,21 +1,57 @@
-l.Error().WithError(e).Log(ctx, "Proov")
-(../testapp/main.go, main, 21)
-
-l.Info().WithString("sõne", "arv1", 10).Log(ctx, "Proov")
-(../testapp/main.go, main, 22)
-
-l.Info().WithJSON("JSON-väärtus", "a").Log(ctx, "Proov")
-(../testapp/main.go, main, 23)
-
-l.Info().WithJSON("JSON-väärtus", "c").Log(ctx, "Proov 2")
-(../testapp/main.go, main, 24)
-
-m.withParam("error", err.Error())
-(../testapp/log/log.go, WithError, 247)
-
-l.Debug().Log(ctx, "Proov")
+----
+log.Debug().Log(ctx, "Proov")
+----
 (../testapp/main.go, main, 18)
 
-l.Info().Log(ctx, "Proov")
+----
+log.Info().WithJSON("JSON-väärtus", "a").Log(ctx, "Proov")
+----
+(../testapp/main.go, main, 23)
+
+----
+log.Info().Log(ctx, "Proov")
+----
 (../testapp/main.go, main, 19)
+Kommentaar
+
+----
+log.Info().WithJSON("JSON-väärtus", "c").Log(ctx, "Proov 2")
+----
+(../testapp/main.go, main, 24)
+
+----
+log.Info().WithString("sõne", "arv1a", 10).Log(ctx, "Proov")
+----
+(../testapp/main.go, main, 22)
+
+----
+log.Debug().
+	WithString("method", method).
+	WithString("url", httpReq.URL).
+	WithString("contentLength", httpReq.ContentLength).
+	Log(ctx, "request")
+----
+(../testapp/main.go, main, 26)
+
+----
+log.Error().WithError(e).Log(ctx, "Proov")
+----
+(../testapp/main.go, main, 21)
+
+----
+log.Info().
+	WithStringf("ptr", "%p", client).
+	WithStringf("server", "%s:%d", hp.host, hp.port).
+	Log(ctx, "connected")
+----
+(../testapp/main.go, main, 32)
+Kommentaar
+Kommentaar
+
+----
+m.withParam("error", err.Error())
+----
+(../testapp/log/log.go, WithError, 247)
+Kommentaar
+Kommentaar
 

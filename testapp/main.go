@@ -11,16 +11,27 @@ import (
 )
 
 func main() {
-	l := log.New(log.TypeServer)
+	log := log.New(log.TypeServer)
 
 	var ctx context.Context
 
-	l.Debug().Log(ctx, "Proov")
-	l.Info().Log(ctx, "Proov")
+	log.Debug().Log(ctx, "Proov")
+	log.Info().Log(ctx, "Proov")
 	e := errors.New("Viga")
-	l.Error().WithError(e).Log(ctx, "Proov")
-	l.Info().WithString("sõne", "arv1", 10).Log(ctx, "Proov")
-	l.Info().WithJSON("JSON-väärtus", "a").Log(ctx, "Proov")
-	l.Info().WithJSON("JSON-väärtus", "c").Log(ctx, "Proov 2")
+	log.Error().WithError(e).Log(ctx, "Proov")
+	log.Info().WithString("sõne", "arv1a", 10).Log(ctx, "Proov")
+	log.Info().WithJSON("JSON-väärtus", "a").Log(ctx, "Proov")
+	log.Info().WithJSON("JSON-väärtus", "c").Log(ctx, "Proov 2")
+
+	log.Debug().
+		WithString("method", method).
+		WithString("url", httpReq.URL).
+		WithString("contentLength", httpReq.ContentLength).
+		Log(ctx, "request")
+
+	log.Info().
+		WithStringf("ptr", "%p", client).
+		WithStringf("server", "%s:%d", hp.host, hp.port).
+		Log(ctx, "connected")
 
 }
