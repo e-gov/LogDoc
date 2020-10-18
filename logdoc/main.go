@@ -48,7 +48,7 @@ func main() {
 		// Loe logilausekirjeldused (ilma viideteta koodibaasile) failist mäppi.
 		readLogStmntDescs(logDocFileName, false)
 		// Salvesta logilausete kirjelduste mäpp kontrolliks faili.
-		writeLogStmntDescs("./Abi.txt")
+		// writeLogStmntDescs("./Abi.txt")
 		// Läbi koodibaas, otsides logilauseid.
 		walk()
 		// Salvesta logilausete kirjelduste mäpp faili.
@@ -65,7 +65,7 @@ func main() {
 		// Loe logilausekirjeldused, sh viited koodibaasile, failist mäppi.
 		readLogStmntDescs(logDocFileName, true)
 		// Salvesta logilausete kirjelduste mäpp kontrolliks faili.
-		writeLogStmntDescs("./Abi.txt")
+		// writeLogStmntDescs("./Abi.txt")
 		statistics()
 	}
 }
