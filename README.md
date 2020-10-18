@@ -25,7 +25,7 @@ viit = "(" failitee "," reanumber "," funktsooninimi ")" .
 
 `viit` näitab koodilause asukohta koodibaasis. Samakujuline logilause võib koodibaasis esineda mitmes kohas. Logilause kirjeldusse kogutakse viited kõigile esinemistele. Iga viit on eraldi real.
 
-`kommentaar` koosneb 0 või enamast tekstireast, mille lõpetab tühi rida.
+`kommentaarid` koosneb ühest või enamast tekstireast, mille lõpetab tühi rida.
 
 Logilausete faili genereerib LogDoc rakendus. Fail on lihtsa struktuuriga tekstifail. Inimene saab faili lugeda ja sinna kommentaare lisada. 
 
@@ -47,7 +47,11 @@ LogDoc käivitatakse käsurealt. LogDoc pakub 3 alamkäsku:
 Koodibaasi ja LogDoc-faili asukoht antakse lippudega:
 
 ````
-logdoc extract -dir <koodibaasi kaust> -logdocfile <logilausete fail>
+logdoc create -dir <koodibaasi kaust> -logdocfile <logilausete fail>
+````
+
+````
+logdoc update -dir <koodibaasi kaust> -logdocfile <logilausete fail>
 ````
 
 ````
