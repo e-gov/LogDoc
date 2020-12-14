@@ -1,4 +1,4 @@
-// `Korjaja` on rakendus, korjab koodibaasist kokku logilaused ja kirjutab väljundfaili.
+// `Korjaja` on rakendus, korjab koodibaasist kokku logilaused ja väljastab väljundvoogu.
 // Vt lähemalt ülakausta README.md-failist.
 package main
 
@@ -11,11 +11,10 @@ import (
 )
 
 var (
-	rootFolder     string // Analüüsitav koodibaas (kaust).
-	logDocFileName string // Logilausekirjelduste fail.
-	noModules      int    // Töödeldud mooduleid.
-	noPackages     int    // Töödeldud pakke.
-	noLogStmts     int    // Leitud logilauseid.
+	rootFolder string // Analüüsitav koodibaas (kaust).
+	noModules  int    // Töödeldud mooduleid.
+	noPackages int    // Töödeldud pakke.
+	noLogStmts int    // Leitud logilauseid.
 
 	moduleLine     string // Parajasti läbitava mooduli nimi (1. rida go.mod failist).
 	pkgName        string // Parajasti läbitava paki nimi.
@@ -28,23 +27,16 @@ type logStmnt string // LogStmnt on logilause, AST "pretty-print" kujul.
 func main() {
 	// Loe ja töötle ohjelipud.
 	codeBasePath := flag.String("dir", "", "Koodikaust")
-	logDocFilePath := flag.String("logdocfile", "", "Logilausekirjelduste fail")
 	flag.Parse()
 	if *codeBasePath == "" {
 		fmt.Println("Anna koodikaust: -dir <kausta nimi>")
 		os.Exit(1)
 	}
-	if *logDocFilePath == "" {
-		fmt.Println("Anna LogDoc faili asukoht: -logdocfile <failitee>")
-		os.Exit(1)
-	}
 	rootFolder = *codeBasePath
-	logDocFileName = *logDocFilePath
 	fmt.Printf("*** LogDoc ****\n\nLogilausete korje koodibaasist\n\n")
 	t := time.Now()
 	fmt.Printf(t.Format("Korje tehtud:\t\t\t02.01.2006 15:04\n\n"))
 	fmt.Printf("Korjan logilauseid kaustast:\t%s\n", rootFolder)
-	fmt.Printf("ja kirjutan faili:\t\t%s\n\n", logDocFileName)
 
 	// Läbi koodibaas, otsides logilauseid.
 	err := filepath.Walk(rootFolder, walkFn)

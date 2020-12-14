@@ -4,6 +4,8 @@ LogDoc on koodianalüüsi ja logimise kavandamise ja dokumenteerimise vahendite 
 
 `Korjaja` on rakendus, korjab koodibaasist kokku logilaused ja kirjutab väljundfaili.
 
+Edaspidi lisandub teisi vahendeid.
+
 Logilause on koodibaasi lause, mis koostab ja kirjutab logikirje. Logilaused on äratuntavad logimisteegi kasutamise järgi (meetodiväljakutsed `Info()`, `Error()`, `Debug()`).
 
 Logilaused on laiali üle kogu koodibaasi. Logimise katvuse hindamiseks, aga samuti logi mõistmiseks on vaja ülevaadet, mida logitakse ja arusaamist, mida logikirjed tähendavad. `Korjaja` aitab neid vajadusi rahuldada - sellega, et koostab täieliku, kogu koodibaasi hõlmava nimekirja logimistest ja aitab inimesel siduda logimislausetega inimloetavaid kommentaare. 
@@ -14,15 +16,18 @@ Logilaused on on väljundfailis Go moodulite, pakkide ja funktsioonide kaupa. Ig
 
 ## Ehitamine
 
-`cd src`
+`cd Korjaja`
 
 `go build .`
 
 ## Käivitamine
 
-`Korjaja -dir <koodibaasi kaust> -logdocfile <logilausete fail>`
+`Korjaja -dir <koodibaasi kaust>`
 
-`-dir` on kaust, millest ja mille alamkaustadest logilauseid kogutakse.
+`<koodibaasi kaust>` on kaust, millest ja mille alamkaustadest logilauseid kogutakse.
 
-`-logdocfile` on logilausete faili nimi (failitee).
+## Näide
 
+Kaustas `Example` on logilauseid sisaldav näiterakendus. Sellest logilausete korjamiseks ja faili salvestamiseks:
+
+`Korjaja -dir Example > Example.txt`

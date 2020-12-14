@@ -1,0 +1,54 @@
+*** LogDoc ****
+
+Logilausete korje koodibaasist
+
+Korje tehtud:			15.12.2020 01:37
+
+Korjan logilauseid kaustast:	Example
+** module github.com/e-gov/LogDoc/testapp **
+
+    ** package main **
+
+        (main, 18)
+            log.Debug().Log(ctx, "Proov")
+
+        (main, 19)
+            log.Info().Log(ctx, "Proov")
+
+        (main, 21)
+            log.Error().WithError(e).Log(ctx, "Proov")
+
+        (main, 22)
+            log.Info().WithString("sõne", "arv1a", 10).Log(ctx, "Proov")
+
+        (main, 23)
+            log.Info().WithJSON("JSON-väärtus", "a").Log(ctx, "Proov")
+
+        (main, 24)
+            log.Info().WithJSON("JSON-väärtus", "c").Log(ctx, "Proov 2")
+
+        (main, 26)
+            log.Debug().
+	WithString("method", method).
+	WithString("url", httpReq.URL).
+	WithString("contentLength", httpReq.ContentLength).
+	Log(ctx, "request")
+
+        (main, 32)
+            log.Info().
+	WithStringf("ptr", "%p", client).
+	WithStringf("server", "%s:%d", hp.host, hp.port).
+	Log(ctx, "connected")
+
+    ** package log **
+
+        (WithError, 247)
+            m.withParam("error", err.Error())
+
+
+
+Statistika
+
+Mooduleid (Go module):		1
+Pakke (Go package):		2
+Logilauseid (v.a testides):	9
