@@ -2,7 +2,7 @@
 
 LogDoc on koodianalüüsi ja logimise kavandamise ja dokumenteerimise vahendite kogum.
 
-`Korjaja` on rakendus, korjab koodibaasist kokku logilaused ja kirjutab väljundfaili.
+`Korjaja` on rakendus, mis korjab koodibaasist kokku logilaused ja kirjutab väljundvoogu.
 
 Edaspidi lisandub teisi vahendeid.
 
